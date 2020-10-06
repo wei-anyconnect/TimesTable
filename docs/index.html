@@ -1,0 +1,132 @@
+<html>
+<head>
+<style>
+table {
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 0px solid black;
+}
+
+td {
+padding: 10px;
+}
+
+.i {
+  width: 41px;
+  border: 0;
+  outline: 0;
+  border-bottom: 2px solid;
+}
+
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button, 
+input[type="number"]::-webkit-outer-spin-button { 
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+</style>
+
+<script>
+function get_number() {
+  var val = document.getElementById("numbers").value
+  if (val.match(/[1-9]+/))
+    return val.charAt(Math.floor(Math.random() * val.length))
+  return Math.floor((Math.random() * 9) + 1)
+}
+
+function check_table() {
+  var answers = document.getElementsByClassName("i");
+  var score=0
+  for (var i = 0; i < answers.length; i++)
+    if (answers[i].getAttribute("answer") != answers[i].value)
+      answers[i].style.backgroundColor = "red";
+    else {
+      answers[i].style.backgroundColor = "";
+      score += 1;
+    }
+  document.getElementById("score").innerHTML = "Score: " + score + "/" + answers.length + " (" + (score/answers.length*100).toFixed(2) + "%)";
+}
+
+function autotab(current,to){
+    if (current.getAttribute &&
+      current.value.length>=current.getAttribute("maxlength")) {
+        document.getElementsByName(to)[0].focus();
+        }
+}
+
+function generate_table() {
+  // get the reference for the body
+  var body = document.getElementsByTagName("body")[0];
+  var qIndex = 0;
+  // creates a <table> element and a <tbody> element
+  var tbl = document.getElementsByTagName("table")[0];
+  if (typeof(tbl) != 'undefined')
+    tbl.parentNode.removeChild(tbl)
+  tbl = document.createElement("table");
+  var tblBody = document.createElement("tbody");
+  var a = 0;
+  var b = 0;
+  // creating all cells
+  for (var i = 0; i < 27; i++) {
+    // creates a table row
+    var row = document.createElement("tr");
+    for (var j = 0; j < 6; j++) {
+      // Create a <td> element and a text node, make the text
+      // node the contents of the <td>, and put the <td> at
+      // the end of the table row
+      var cell = document.createElement("td");
+          a = get_number();
+          b = Math.floor((Math.random() * 9) + 1);
+      var cellText = document.createTextNode(
+            a + " X " + b + " = "
+                );
+      cell.appendChild(cellText);
+      var cellInput = document.createElement("input");
+      cellInput.setAttribute("class","i");
+      cellInput.setAttribute("name", "q" + qIndex);
+      cellInput.setAttribute("type","number");
+      cellInput.setAttribute("inputmode","numeric");
+      cellInput.setAttribute("maxlength",(a*b).toString().length);
+      cellInput.setAttribute("answer",a*b);
+      cellInput.setAttribute("onKeyup", "autotab(this, 'q" + (qIndex+1) + "')");
+      qIndex += 1;
+      cell.appendChild(cellInput);
+      row.appendChild(cell);
+    }
+
+    // add the row to the end of the table body
+    tblBody.appendChild(row);
+  }
+
+  // put the <tbody> in the <table>
+  tbl.appendChild(tblBody);
+  // appends <table> into <body>
+  body.appendChild(tbl);
+  // sets the border attribute of tbl to 2;
+  tbl.setAttribute("border", "2");
+  document.getElementById("score").innerHTML = "";
+}
+</script>
+</head>
+<body>
+<input type="number" id="numbers" name="numbers" placeholder="Enter 1-9. e.g. 234" required maxlength="9" size="10">
+<input type="button" id="myBtn" value="Generate a table" onclick="generate_table()">
+<input type="button" value="Check Answers" onclick="check_table()">
+<div id="score"></div>
+<script>
+document.getElementById("numbers").addEventListener("keyup", function(event) {
+    if (event.keyCode === 13) {
+        event.preventDefault();
+        document.getElementById("myBtn").click();
+    }
+});
+document.getElementById("myBtn").click();
+</script>
+</body>
+</html>
